@@ -84,6 +84,7 @@ class App extends Component{
         const wordsTexts = [];
         const {currentTime} = this.state;
         let prevS = 0;
+        let lastIndex = 0;
         words.forEach((item, index) => {
             const splitWord = item.match(/(\[.*\])(.*)/);
             if(!splitWord){
@@ -99,10 +100,12 @@ class App extends Component{
                 fontColor = {
                     color: '#48dae0'
                 }
+                lastIndex = index;
             }
             prevS = s;
             wordsTexts.push(<Text style={[styles.musicWordsText, fontColor]} key={index}>{word}</Text>);
         });
+        this.scrollView && this.scrollView.scrollTo({x:0, y: lastIndex*20, animated:true},1) 
         this.setState({
             wordsTexts
         })
@@ -244,6 +247,9 @@ class App extends Component{
                     >
                     <View style={styles.modalContent}>
                         <ScrollView
+                            ref={(ref) => {
+                                this.scrollView = ref
+                            }}
                             contentInsetAdjustmentBehavior="automatic"
                             style={styles.scrollView}
                         >
