@@ -105,7 +105,7 @@ class App extends Component{
             prevS = s;
             wordsTexts.push(<Text style={[styles.musicWordsText, fontColor]} key={index}>{word}</Text>);
         });
-        this.scrollView && this.scrollView.scrollTo({x:0, y: lastIndex*20, animated:true},1) 
+        this.scrollView && this.scrollView.scrollTo({x:0, y: lastIndex * 20, animated:true},1) 
         this.setState({
             wordsTexts
         })
