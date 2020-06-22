@@ -72,9 +72,39 @@ class App extends Component{
             return fetch(`${musicWordsUrl}?sid=${this.state.sid}&ssid=${this.state.ssid}`)
         }).then((response) => response.json())
         .then((data) => {
+            const words = data.lyric;
+            this.renderWords(words);
             this.setState({
                 words: data.lyric
             })
+        })
+    }
+    renderWords(lyric = ''){
+        const words = lyric.split(/\r\n/);
+        const wordsTexts = [];
+        const {currentTime} = this.state;
+        let prevS = 0;
+        words.forEach((item, index) => {
+            const splitWord = item.match(/(\[.*\])(.*)/);
+            if(!splitWord){
+                return wordsTexts.push(<Text style={styles.musicWordsText} key={index}>{item}</Text>);
+            }
+            const time = splitWord[1].replace(/\[|\]/g, '').split(':');
+            const min = parseInt(time[0]);
+            const sec = time[1];
+            const s = (min*60) + Number(sec);
+            const word = splitWord[2];
+            let fontColor = {};
+            if(s >= prevS && s <= currentTime){
+                fontColor = {
+                    color: '#48dae0'
+                }
+            }
+            prevS = s;
+            wordsTexts.push(<Text style={[styles.musicWordsText, fontColor]} key={index}>{word}</Text>);
+        });
+        this.setState({
+            wordsTexts
         })
     }
     onLoad(data){
@@ -97,6 +127,7 @@ class App extends Component{
             sliderTime,
             currentTime: data.currentTime
         });
+        this.renderWords(this.state.words);
     }
     onPlayModel(model){
         let m = model + 1;
@@ -216,7 +247,7 @@ class App extends Component{
                             contentInsetAdjustmentBehavior="automatic"
                             style={styles.scrollView}
                         >
-                            <Text style={styles.musicWordsText}>{this.state.words || ''}</Text>
+                            <View style={styles.wordsTextsBox}>{this.state.wordsTexts}</View>
                         </ScrollView>
                         <View style={styles.button}>
                             <TouchableOpacity style={{
@@ -352,14 +383,17 @@ const styles = StyleSheet.create({
         height: (win.height/2) - 60,
         backgroundColor: 'rgba(0,0,0,0.8)',
     },
+    wordsTextsBox: {
+        paddingTop: 20,
+        paddingBottom: 20,
+    },
     musicWordsText: {
         color: '#fff',
-        lineHeight: 25,
-        paddingBottom: 20,
+        paddingBottom: 10,
     },
     button: {
         position: 'absolute',
-        bottom: -8,
+        bottom: -15,
         left: 0,
         right: 0,
         height: 50,
